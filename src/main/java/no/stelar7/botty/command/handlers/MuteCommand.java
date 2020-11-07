@@ -50,7 +50,7 @@ public class MuteCommand extends Command
                 mutes.put(flake.asString(), DateUtils.dateToEpochMillisString(DateUtils.dateNow().plusDays(1)));
                 User user = params.getMessage().getClient().getUserById(flake).block();
                 RoleUtils.addRoleIfMember(muteRoleId, user, params.getMessage().getGuild().block());
-                params.getMessage().getChannel().block().createMessage(user.getUsername() + " is now muted").block();
+                params.getMessage().getChannel().block().createMessage(MentionUtil.user(user.getId()) + " is now muted").block();
             }
         }
         
@@ -62,7 +62,7 @@ public class MuteCommand extends Command
                 {
                     User user = params.getMessage().getClient().getUserById(flake).block();
                     RoleUtils.addRoleIfMember(muteRoleId, user, params.getMessage().getGuild().block());
-                    params.getMessage().getChannel().block().createMessage(user.getUsername() + " is now unmuted").block();
+                    params.getMessage().getChannel().block().createMessage(MentionUtil.user(user.getId()) + " is now unmuted").block();
                 }
             }
         }
@@ -72,20 +72,19 @@ public class MuteCommand extends Command
             long now = DateUtils.dateToEpochMillis(DateUtils.dateNow());
             
             List<String> listing = new ArrayList<>();
-            for (Snowflake flake : mentionedUsers)
-            {
-                String end = mutes.get(flake.asString());
-                if (end == null)
-                {
-                    continue;
-                }
-                
-                long     endTime  = Long.parseLong(end);
+            this.mutes.forEach((k, v) -> {
+                long     endTime  = Long.parseLong(v);
                 Duration duration = Duration.ofMillis(endTime).minusMillis(now);
-                listing.add("<@" + flake.asString() + ">: " + duration.getSeconds() + " seconds remaining");
-            }
+                listing.add(MentionUtil.user(k) + " - " + duration.getSeconds() + " seconds remaining");
+            });
             
-            params.getMessage().getChannel().block().createMessage(String.join("\n", listing)).block();
+            if (listing.size() == 0)
+            {
+                params.getMessage().getChannel().block().createMessage("No users are muted at the moment").block();
+            } else
+            {
+                params.getMessage().getChannel().block().createMessage(String.join("\n", listing)).block();
+            }
         }
         
         file.put("mutes", SettingsUtil.gson.toJson(mutes));
@@ -96,7 +95,7 @@ public class MuteCommand extends Command
         if (mutes.containsKey(event.getMember().getId().asString()))
         {
             event.getMember().addRole(muteRoleId).block();
-            logger.info("Added mute to " + event.getMember().getId());
+            logger.info("Added mute to " + event.getMember().getUsername());
         }
     }
     
@@ -116,7 +115,7 @@ public class MuteCommand extends Command
                 User  user  = client.getUserById(Snowflake.of(k)).block();
                 Guild guild = client.getGuildById(this.apiGuildId).block();
                 RoleUtils.removeRoleIfMember(muteRoleId, user, guild);
-                logger.info("Removed mute from " + k);
+                logger.info("Removed mute from " + user.getUsername());
             }
         });
         

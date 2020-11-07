@@ -11,7 +11,7 @@ public class EventListener
 {
     public final static Map<String, Object> loadedObjects = new HashMap<>();
     
-    public static void loadListeners(GatewayDiscordClient client)
+    public static void initListeners(GatewayDiscordClient client)
     {
         try
         {

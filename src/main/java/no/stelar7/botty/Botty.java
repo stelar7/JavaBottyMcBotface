@@ -16,7 +16,7 @@ public class Botty
     public Botty()
     {
         client = DiscordClientBuilder.create(SecretFile.BOT_TOKEN).build().login().block();
-        EventListener.loadListeners(client);
+        EventListener.initListeners(client);
         client.onDisconnect().block();
     }
 }

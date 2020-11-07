@@ -2,7 +2,7 @@ package no.stelar7.botty;
 
 import discord4j.core.*;
 import no.stelar7.botty.listener.EventListener;
-import no.stelar7.botty.utils.SecretFile;
+import no.stelar7.botty.utils.*;
 
 public class Botty
 {
@@ -16,7 +16,7 @@ public class Botty
     public Botty()
     {
         client = DiscordClientBuilder.create(SecretFile.BOT_TOKEN).build().login().block();
-        EventListener listener = new EventListener(client.getEventDispatcher());
+        EventListener.loadListeners(client);
         client.onDisconnect().block();
     }
 }

@@ -124,7 +124,7 @@ public class LibrariesCommand extends Command
     @Override
     public List<String> getCommands()
     {
-        return List.of("libs", "lib", "library");
+        return List.of("libs");
     }
     
     @Override

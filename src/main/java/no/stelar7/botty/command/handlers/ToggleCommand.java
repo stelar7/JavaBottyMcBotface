@@ -6,6 +6,11 @@ import java.util.*;
 
 public class ToggleCommand extends Command
 {
+    public ToggleCommand()
+    {
+        this.setAdminOnly(true);
+    }
+    
     @Override
     public void execute(CommandParameters params)
     {

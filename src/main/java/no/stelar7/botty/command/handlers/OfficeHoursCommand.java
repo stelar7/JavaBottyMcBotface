@@ -12,24 +12,18 @@ import java.util.*;
 
 public class OfficeHoursCommand extends Command
 {
-    
-    private static TextChannel channel;
-    private static Role        everyone;
-    
+    public OfficeHoursCommand()
+    {
+        this.setAdminOnly(true);
+    }
     
     @Override
     public void execute(CommandParameters params)
     {
-        if (channel == null)
-        {
-            channel = (TextChannel) params.getMessage().getGuild().block()
-                                          .getChannelById(Snowflake.of(774418825512747079L)).block();
-        }
+        TextChannel channel = (TextChannel) params.getMessage().getGuild().block()
+                                                  .getChannelById(Snowflake.of(774418825512747079L)).block();
         
-        if (everyone == null)
-        {
-            everyone = params.getMessage().getGuild().block().getEveryoneRole().block();
-        }
+        Role everyone = params.getMessage().getGuild().block().getEveryoneRole().block();
         
         PermissionSet       change      = PermissionSet.of(Permission.SEND_MESSAGES);
         PermissionOverwrite permissions = PermissionUtil.getOverrideFor(channel, everyone);

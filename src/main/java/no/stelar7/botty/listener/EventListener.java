@@ -1,6 +1,6 @@
 package no.stelar7.botty.listener;
 
-import discord4j.core.event.EventDispatcher;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
 import org.reflections.Reflections;
 
@@ -9,9 +9,9 @@ import java.util.*;
 
 public class EventListener
 {
-    private final static Map<String, Object> loadedObjects = new HashMap<>();
+    public final static Map<String, Object> loadedObjects = new HashMap<>();
     
-    public EventListener(EventDispatcher eventDispatcher)
+    public static void loadListeners(GatewayDiscordClient client)
     {
         try
         {
@@ -22,7 +22,14 @@ public class EventListener
             {
                 if (loadedObjects.get(listener.getName()) == null)
                 {
-                    Object instance = listener.getConstructor().newInstance();
+                    Object instance;
+                    try
+                    {
+                        instance = listener.getConstructor(GatewayDiscordClient.class).newInstance(client);
+                    } catch (NoSuchMethodException e)
+                    {
+                        instance = listener.getConstructor().newInstance();
+                    }
                     loadedObjects.put(listener.getName(), instance);
                 }
                 
@@ -39,7 +46,7 @@ public class EventListener
                         Class<?> param = method.getParameterTypes()[0];
                         if (event.getTypeName().equals(param.getName()))
                         {
-                            eventDispatcher.on(event).subscribe(e -> {
+                            client.getEventDispatcher().on(event).subscribe(e -> {
                                 try
                                 {
                                     method.invoke(loadedObjects.get(listener.getName()), e);

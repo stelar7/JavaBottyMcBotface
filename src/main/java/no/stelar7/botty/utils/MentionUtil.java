@@ -23,4 +23,14 @@ public class MentionUtil
     {
         return user(id.asString());
     }
+    
+    public static String channel(String id)
+    {
+        return "<#" + id + ">";
+    }
+    
+    public static String channel(Snowflake id)
+    {
+        return channel(id.asString());
+    }
 }

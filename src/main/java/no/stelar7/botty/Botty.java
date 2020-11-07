@@ -11,11 +11,9 @@ public class Botty
         new Botty();
     }
     
-    final GatewayDiscordClient client;
-    
     public Botty()
     {
-        client = DiscordClientBuilder.create(SecretFile.BOT_TOKEN).build().login().block();
+        GatewayDiscordClient client = DiscordClientBuilder.create(SecretFile.BOT_TOKEN).build().login().block();
         EventListener.initListeners(client);
         client.onDisconnect().block();
     }

@@ -4,6 +4,7 @@ import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.object.entity.*;
+import discord4j.core.object.entity.channel.TextChannel;
 import no.stelar7.botty.command.*;
 import no.stelar7.botty.listener.Listener;
 import no.stelar7.botty.utils.*;
@@ -26,7 +27,7 @@ public class MuteCommand extends Command
     public MuteCommand(GatewayDiscordClient client)
     {
         //this.setAdminOnly(true);
-        this.mutes = SettingsUtil.gson.fromJson(file.getOrDefault("mutes", "{}").toString(), Map.class);
+        this.mutes = file.getMap("mutes");
         muteRoleId = SettingsUtil.GLOBAL.getSnowflake("muteRoleId");
         apiGuildId = SettingsUtil.GLOBAL.getSnowflake("apiGuildId");
         Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> checkIfShouldUnmute(client), 0, 5, TimeUnit.MINUTES);
@@ -41,53 +42,78 @@ public class MuteCommand extends Command
     @Override
     public void execute(CommandParameters params)
     {
-        Set<Snowflake> mentionedUsers = params.getMessage().getUserMentionIds();
+        Set<Snowflake>       mentionedUsers = params.getMessage().getUserMentionIds();
+        TextChannel          channel        = (TextChannel) params.getMessage().getChannel().block();
+        Guild                guild          = params.getMessage().getGuild().block();
+        GatewayDiscordClient client         = params.getMessage().getClient();
         
         if (params.getCommand().equalsIgnoreCase("mute"))
         {
-            for (Snowflake flake : mentionedUsers)
-            {
-                mutes.put(flake.asString(), DateUtils.dateToEpochMillisString(DateUtils.dateNow().plusDays(1)));
-                User user = params.getMessage().getClient().getUserById(flake).block();
-                RoleUtils.addRoleIfMember(muteRoleId, user, params.getMessage().getGuild().block());
-                params.getMessage().getChannel().block().createMessage(MentionUtil.user(user.getId()) + " is now muted").block();
-            }
+            handleMute(mentionedUsers, channel, guild, client);
         }
         
         if (params.getCommand().equalsIgnoreCase("unmute"))
         {
-            for (Snowflake flake : mentionedUsers)
-            {
-                if (mutes.remove(flake.asString()) != null)
-                {
-                    User user = params.getMessage().getClient().getUserById(flake).block();
-                    RoleUtils.addRoleIfMember(muteRoleId, user, params.getMessage().getGuild().block());
-                    params.getMessage().getChannel().block().createMessage(MentionUtil.user(user.getId()) + " is now unmuted").block();
-                }
-            }
+            handleUnmute(mentionedUsers, channel, guild, client);
         }
         
         if (params.getCommand().equalsIgnoreCase("muteduration"))
         {
-            long now = DateUtils.dateToEpochMillis(DateUtils.dateNow());
-            
-            List<String> listing = new ArrayList<>();
-            this.mutes.forEach((k, v) -> {
-                long     endTime  = Long.parseLong(v);
-                Duration duration = Duration.ofMillis(endTime).minusMillis(now);
-                listing.add(MentionUtil.user(k) + " - " + duration.getSeconds() + " seconds remaining");
-            });
-            
-            if (listing.size() == 0)
+            handleMuteDuration(channel);
+        }
+    }
+    
+    private void handleMuteDuration(TextChannel channel)
+    {
+        long now = DateUtils.dateToEpochMillis(DateUtils.dateNow());
+        
+        List<String> listing = new ArrayList<>();
+        this.mutes.forEach((k, v) -> {
+            long     endTime  = Long.parseLong(v);
+            Duration duration = Duration.ofMillis(endTime).minusMillis(now);
+            listing.add(MentionUtil.user(k) + " - " + duration.getSeconds() + " seconds remaining");
+        });
+        
+        if (listing.size() == 0)
+        {
+            channel.createMessage("No users are muted at the moment").block();
+        } else
+        {
+            channel.createMessage(String.join("\n", listing)).block();
+        }
+    }
+    
+    private void handleUnmute(Set<Snowflake> mentionedUsers, TextChannel channel, Guild guild, GatewayDiscordClient client)
+    {
+        boolean didUpdate = false;
+        for (Snowflake flake : mentionedUsers)
+        {
+            if (mutes.remove(flake.asString()) != null)
             {
-                params.getMessage().getChannel().block().createMessage("No users are muted at the moment").block();
-            } else
-            {
-                params.getMessage().getChannel().block().createMessage(String.join("\n", listing)).block();
+                User user = client.getUserById(flake).block();
+                RoleUtils.addRoleIfMember(muteRoleId, user, guild);
+                channel.createMessage(MentionUtil.user(user.getId()) + " is now unmuted").block();
+                didUpdate = true;
             }
         }
         
-        file.put("mutes", SettingsUtil.gson.toJson(mutes));
+        if (didUpdate)
+        {
+            file.putMap("mutes", mutes);
+        }
+    }
+    
+    private void handleMute(Set<Snowflake> mentionedUsers, TextChannel channel, Guild guild, GatewayDiscordClient client)
+    {
+        for (Snowflake flake : mentionedUsers)
+        {
+            mutes.put(flake.asString(), DateUtils.dateToEpochMillisString(DateUtils.dateNow().plusDays(1)));
+            User user = client.getUserById(flake).block();
+            RoleUtils.addRoleIfMember(muteRoleId, user, guild);
+            channel.createMessage(MentionUtil.user(user.getId()) + " is now muted").block();
+        }
+        
+        file.putMap("mutes", mutes);
     }
     
     public void onJoin(MemberJoinEvent event)
@@ -121,7 +147,7 @@ public class MuteCommand extends Command
         
         if (hadChange.get())
         {
-            file.put("mutes", SettingsUtil.gson.toJson(mutes));
+            file.putMap("mutes", mutes);
         }
     }
 }

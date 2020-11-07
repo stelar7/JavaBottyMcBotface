@@ -1,9 +1,11 @@
 package no.stelar7.botty.command;
 
+import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import no.stelar7.botty.listener.EventListener;
 import no.stelar7.botty.listener.*;
+import no.stelar7.botty.utils.SettingsUtil;
 import org.reflections.Reflections;
 import org.slf4j.*;
 
@@ -65,7 +67,17 @@ public class CommandHandler
         String       command    = parts.get(0).substring(1);
         List<String> parameters = parts.stream().skip(1).collect(Collectors.toList());
         
-        CommandParameters params = new CommandParameters(event.getMessage(), command, parameters);
+        boolean isAdmin = false;
+        if (event.getMember().isPresent())
+        {
+            List<String> adminIds = SettingsUtil.GLOBAL.getList("adminRoleIds");
+            isAdmin = event.getMember().get()
+                           .getRoleIds().stream()
+                           .map(Snowflake::asString)
+                           .anyMatch(adminIds::contains);
+        }
+        
+        CommandParameters params = new CommandParameters(event.getMessage(), command, parameters, isAdmin);
         for (Command handler : handlers.getOrDefault(command, new ArrayList<>()))
         {
             if (handler.isDisabled())
@@ -73,13 +85,10 @@ public class CommandHandler
                 continue;
             }
             
-            /*
-            // TODO: check if user is admin
-            if (handler.isAdminOnly())
+            if (handler.isAdminOnly() && !isAdmin)
             {
                 continue;
             }
-            */
             
             handler.execute(params);
         }

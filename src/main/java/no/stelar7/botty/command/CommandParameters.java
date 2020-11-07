@@ -9,12 +9,19 @@ public class CommandParameters
     private final Message      message;
     private final String       command;
     private final List<String> parameters;
+    private final boolean      isAdmin;
     
-    public CommandParameters(Message message, String command, List<String> parameters)
+    public CommandParameters(Message message, String command, List<String> parameters, boolean isAdmin)
     {
         this.message = message;
         this.command = command;
         this.parameters = parameters;
+        this.isAdmin = isAdmin;
+    }
+    
+    public boolean isAdmin()
+    {
+        return isAdmin;
     }
     
     public Message getMessage()

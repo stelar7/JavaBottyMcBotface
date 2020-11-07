@@ -2,6 +2,7 @@ package no.stelar7.botty.command.handlers;
 
 import com.google.gson.*;
 import no.stelar7.botty.command.*;
+import no.stelar7.botty.utils.SecretFile;
 import org.kohsuke.github.*;
 import org.slf4j.*;
 
@@ -21,7 +22,7 @@ public class LibrariesCommand extends Command
         try
         {
             this.setDisabled(true);
-            client = GitHub.connect("stelar7", "");
+            client = GitHub.connect("stelar7", SecretFile.GH_TOKEN);
             Executors.newScheduledThreadPool(1).scheduleAtFixedRate(this::updateLibraryList, 0, 1, TimeUnit.DAYS);
         } catch (Exception e)
         {

@@ -61,18 +61,24 @@ public class DatabaseConnection
         }
     }
     
-    protected void insert(String table, List<String> columns, List<String> values)
+    protected int insert(String table, List<String> columns, List<String> values)
     {
         try
         {
             String query = "INSERT INTO `" + table + "` (" + String.join(", ", columns) + ") VALUES ( " + String.join(", ", values) + ")";
             
-            PreparedStatement preparedStatement = this.connection.prepareStatement(query);
-            preparedStatement.execute();
+            PreparedStatement preparedStatement = this.connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.executeUpdate();
+            
+            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+            generatedKeys.first();
+            return generatedKeys.getInt(1);
         } catch (SQLException throwables)
         {
             throwables.printStackTrace();
         }
+        
+        return 0;
     }
     
     protected void update(String table, List<String> columns, List<String> values, String where)
@@ -118,6 +124,19 @@ public class DatabaseConnection
         {
             throwables.printStackTrace();
             return null;
+        }
+    }
+    
+    protected void delete(String table, String where)
+    {
+        try
+        {
+            String            query             = "DELETE FROM `" + table + "` " + where;
+            PreparedStatement preparedStatement = this.connection.prepareStatement(query);
+            preparedStatement.executeUpdate();
+        } catch (SQLException throwables)
+        {
+            throwables.printStackTrace();
         }
     }
     

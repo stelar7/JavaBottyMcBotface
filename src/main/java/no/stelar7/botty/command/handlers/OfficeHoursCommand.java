@@ -41,6 +41,24 @@ public class OfficeHoursCommand extends Command
         {
             handleAsk(params, channel, isOpen);
         }
+        
+        if (params.getCommand().equalsIgnoreCase("unask"))
+        {
+            handleUnask(params);
+        }
+    }
+    
+    private void handleUnask(CommandParameters params)
+    {
+        User                author   = params.getMessage().getAuthor().get();
+        String              id       = params.getParameters().get(0);
+        OfficeHoursQuestion question = database.getQuestion(id);
+        
+        if (question.getAuthor().equalsIgnoreCase(author.getId().asString()))
+        {
+            database.removeQuestion(id);
+            params.getMessage().getChannel().block().createMessage("Question has been removed");
+        }
     }
     
     private void handleAsk(CommandParameters params, TextChannel channel, boolean isOpen)
@@ -60,8 +78,8 @@ public class OfficeHoursCommand extends Command
             
         } else
         {
-            database.addQuestion(params.getMessage().getAuthor().get(), question);
-            params.getMessage().getChannel().block().createMessage("Your question was saved to the database");
+            OfficeHoursQuestion ohQuestion = database.addQuestion(params.getMessage().getAuthor().get(), question);
+            params.getMessage().getChannel().block().createMessage("Your question was saved to the database with id " + ohQuestion.getId());
         }
     }
     
@@ -90,7 +108,7 @@ public class OfficeHoursCommand extends Command
     @Override
     public List<String> getCommands()
     {
-        return List.of("open", "close", "ask");
+        return List.of("open", "close", "ask", "unask");
     }
     
     public static class OfficeHoursQuestion

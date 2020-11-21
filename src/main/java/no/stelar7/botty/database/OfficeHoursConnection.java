@@ -25,13 +25,15 @@ public class OfficeHoursConnection extends DatabaseConnection
         this.createTableIfMissing(this.table, columns);
     }
     
-    public void addQuestion(User user, String question)
+    public OfficeHoursQuestion addQuestion(User user, String question)
     {
-        this.insert(
+        int insertedId = this.insert(
                 this.table,
                 List.of(SQLUtils.wrapInSQLQuotes("snowflake"), SQLUtils.wrapInSQLQuotes("question")),
                 List.of(SQLUtils.wrapInSQLQuotes(user.getId().asString()), SQLUtils.wrapInSQLQuotes(question))
-                   );
+                                    );
+        
+        return new OfficeHoursQuestion(String.valueOf(insertedId), user.getId().asString(), question, false);
     }
     
     public void setAsked(OfficeHoursQuestion question)
@@ -55,5 +57,25 @@ public class OfficeHoursConnection extends DatabaseConnection
             
         }
         return questions;
+    }
+    
+    public OfficeHoursQuestion getQuestion(String id)
+    {
+        try
+        {
+            ResultSet rs = this.select(this.table, "*", "WHERE " + SQLUtils.wrapInSQLQuotes("id") + "=" + id);
+            rs.first();
+            return new OfficeHoursQuestion(rs.getString("id"), rs.getString("author"), rs.getString("question"), rs.getBoolean("answered"));
+        } catch (SQLException throwables)
+        {
+            throwables.printStackTrace();
+            
+        }
+        return null;
+    }
+    
+    public void removeQuestion(String id)
+    {
+        this.delete(this.table, "WHERE " + SQLUtils.wrapInSQLQuotes("id") + "=" + id);
     }
 }

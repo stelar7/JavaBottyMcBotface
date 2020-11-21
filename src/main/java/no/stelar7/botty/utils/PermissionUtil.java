@@ -56,4 +56,14 @@ public class PermissionUtil
     {
         return current.and(removed.not());
     }
+    
+    public static boolean isAllowed(PermissionOverwrite permissions, PermissionSet change)
+    {
+        return permissions.getAllowed().and(change).equals(change);
+    }
+    
+    public static boolean isDenied(PermissionOverwrite permissions, PermissionSet change)
+    {
+        return permissions.getDenied().and(change).equals(change);
+    }
 }

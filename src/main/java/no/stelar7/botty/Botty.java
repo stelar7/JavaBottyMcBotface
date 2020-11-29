@@ -2,7 +2,7 @@ package no.stelar7.botty;
 
 import discord4j.core.*;
 import no.stelar7.botty.listener.EventListener;
-import no.stelar7.botty.utils.*;
+import no.stelar7.botty.utils.SecretFile;
 
 public class Botty
 {

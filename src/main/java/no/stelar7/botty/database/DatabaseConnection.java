@@ -49,7 +49,7 @@ public class DatabaseConnection
     }
     
     
-    protected void createTableIfMissing(String table, List<String> columns)
+    public void createTableIfMissing(String table, List<String> columns)
     {
         try
         {
@@ -61,7 +61,7 @@ public class DatabaseConnection
         }
     }
     
-    protected int insert(String table, List<String> columns, List<String> values)
+    public int insert(String table, List<String> columns, List<String> values)
     {
         try
         {
@@ -81,7 +81,7 @@ public class DatabaseConnection
         return 0;
     }
     
-    protected void update(String table, List<String> columns, List<String> values, String where)
+    public void update(String table, List<String> columns, List<String> values, String where)
     {
         if (columns.size() != values.size())
         {
@@ -112,13 +112,13 @@ public class DatabaseConnection
         }
     }
     
-    protected ResultSet select(String table, String what, String where)
+    public ResultSet select(String table, String what, String where)
     {
         try
         {
             String query = "SELECT " + what + " FROM `" + table + "` " + where;
             
-            PreparedStatement preparedStatement = this.connection.prepareStatement(query);
+            PreparedStatement preparedStatement = this.connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             return preparedStatement.executeQuery();
         } catch (SQLException throwables)
         {
@@ -127,7 +127,7 @@ public class DatabaseConnection
         }
     }
     
-    protected void delete(String table, String where)
+    public void delete(String table, String where)
     {
         try
         {

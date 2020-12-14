@@ -17,8 +17,10 @@ public class OfficeHoursConnection extends BotConnection
         
         List<String> columns = List.of(
                 "`id` INT unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY",
-                "`snowflake` VARCHAR(20) NOT NULL CHARACTER SET utf8mb4 COLLATE utf8mb4_swedish_ci COMMENT 'Discord snowflake id'",
-                "`question` VARCHAR(2000) NOT NULL CHARACTER SET utf8mb4 COLLATE utf8mb4_swedish_ci",
+                "`posterSnowflake` VARCHAR(20) NOT NULL COMMENT 'Discord snowflake id'",
+                "`answerSnowflake` VARCHAR(20) NOT NULL COMMENT 'Discord snowflake id'",
+                "`question` VARCHAR(2000) NOT NULL",
+                "`answer` VARCHAR(2000) NOT NULL",
                 "`asked` BOOLEAN NOT NULL"
                                       );
         
@@ -29,7 +31,7 @@ public class OfficeHoursConnection extends BotConnection
     {
         int insertedId = this.insert(
                 this.table,
-                List.of(SQLUtils.wrapInSQLQuotes("snowflake"), SQLUtils.wrapInSQLQuotes("question")),
+                List.of(SQLUtils.wrapInSQLQuotes("posterSnowflake"), SQLUtils.wrapInSQLQuotes("question")),
                 List.of(SQLUtils.wrapInSQLQuotes(user.getId().asString()), SQLUtils.wrapInSQLQuotes(question))
                                     );
         
@@ -43,20 +45,17 @@ public class OfficeHoursConnection extends BotConnection
     
     public List<OfficeHoursQuestion> getUnaskedQuestions()
     {
-        List<OfficeHoursQuestion> questions = new ArrayList<>();
-        try
-        {
-            ResultSet rs = this.select(this.table, "*", "WHERE " + SQLUtils.wrapInSQLQuotes("asked") + "=true");
-            while (rs.next())
+        ResultSet rs = this.select(this.table, "*", "WHERE " + SQLUtils.wrapInSQLQuotes("asked") + "=false");
+        return SQLUtils.resultSetToList(rs, sql -> {
+            try
             {
-                questions.add(new OfficeHoursQuestion(rs.getString("id"), rs.getString("author"), rs.getString("question"), rs.getBoolean("answered")));
+                return new OfficeHoursQuestion(sql.getString("id"), sql.getString("posterSnowflake"), sql.getString("question"), sql.getBoolean("asked"));
+            } catch (SQLException throwables)
+            {
+                throwables.printStackTrace();
             }
-        } catch (SQLException throwables)
-        {
-            throwables.printStackTrace();
-            
-        }
-        return questions;
+            return null;
+        });
     }
     
     public OfficeHoursQuestion getQuestion(String id)
@@ -65,7 +64,7 @@ public class OfficeHoursConnection extends BotConnection
         {
             ResultSet rs = this.select(this.table, "*", "WHERE " + SQLUtils.wrapInSQLQuotes("id") + "=" + id);
             rs.first();
-            return new OfficeHoursQuestion(rs.getString("id"), rs.getString("author"), rs.getString("question"), rs.getBoolean("answered"));
+            return new OfficeHoursQuestion(rs.getString("id"), rs.getString("posterSnowflake"), rs.getString("question"), rs.getBoolean("asked"));
         } catch (SQLException throwables)
         {
             throwables.printStackTrace();

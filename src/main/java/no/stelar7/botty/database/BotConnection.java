@@ -12,7 +12,7 @@ public class BotConnection extends DatabaseConnection
         super();
         
         List<String> columns = List.of(
-                "`id` VARCHAR(255) NOT NULL CHARACTER SET utf8mb4 COLLATE utf8mb4_swedish_ci"
+                "`id` VARCHAR(255) NOT NULL"
                                       );
         
         this.createTableIfMissing("admin_roles", columns);

@@ -10,8 +10,6 @@ public class SettingsUtil
 {
     public static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     
-    public static FileMappedSettings GLOBAL = new FileMappedSettings(getJarFolder().resolve("global.json"));
-    
     public static Path getJarFolder()
     {
         try

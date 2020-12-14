@@ -9,4 +9,17 @@ public class GeneralUtils
     {
         return a.stream().distinct().filter(b::contains).collect(Collectors.toSet());
     }
+    
+    @SafeVarargs
+    public static <T> T firstNonNull(T... params)
+    {
+        for (T param : params)
+        {
+            if (param != null)
+            {
+                return param;
+            }
+        }
+        return null;
+    }
 }

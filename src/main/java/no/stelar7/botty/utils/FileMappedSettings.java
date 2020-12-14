@@ -20,7 +20,13 @@ public class FileMappedSettings
     
     public String get(String key)
     {
-        return this.settings.get(key);
+        String value = this.settings.get(key);
+        if (value == null) {
+            System.out.println(this.file.toAbsolutePath().toString() + " is missing the required field `" + key + "`");
+            System.exit(0);
+        }
+        
+        return value;
     }
     
     public String getOrDefault(String key, String def)
@@ -62,6 +68,11 @@ public class FileMappedSettings
     {
         try
         {
+            if (!Files.exists(this.file))
+            {
+                Files.createFile(this.file);
+            }
+            
             String content = Files.readString(this.file);
             this.settings = SettingsUtil.gson.fromJson(content, Map.class);
             if (this.settings == null)

@@ -6,6 +6,7 @@ import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.object.entity.*;
 import discord4j.core.object.entity.channel.TextChannel;
 import no.stelar7.botty.command.*;
+import no.stelar7.botty.database.SettingsConnection;
 import no.stelar7.botty.listener.Listener;
 import no.stelar7.botty.utils.*;
 import org.slf4j.*;
@@ -28,8 +29,8 @@ public class MuteCommand extends Command
     {
         //this.setAdminOnly(true);
         this.mutes = file.getMap("mutes");
-        muteRoleId = SettingsUtil.GLOBAL.getSnowflake("muteRoleId");
-        apiGuildId = SettingsUtil.GLOBAL.getSnowflake("apiGuildId");
+        muteRoleId = Snowflake.of(SettingsConnection.INSTANCE.getSetting("muteRoleId"));
+        apiGuildId = Snowflake.of(SettingsConnection.INSTANCE.getSetting("apiGuildId"));
         Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> checkIfShouldUnmute(client), 0, 5, TimeUnit.MINUTES);
     }
     

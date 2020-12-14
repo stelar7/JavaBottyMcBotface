@@ -3,9 +3,9 @@ package no.stelar7.botty.command;
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import no.stelar7.botty.database.SettingsConnection;
 import no.stelar7.botty.listener.EventListener;
 import no.stelar7.botty.listener.*;
-import no.stelar7.botty.utils.SettingsUtil;
 import org.reflections.Reflections;
 import org.slf4j.*;
 
@@ -20,6 +20,7 @@ public class CommandHandler
     
     public CommandHandler(GatewayDiscordClient client)
     {
+        logger.info("Starting command registration");
         try
         {
             Reflections                   ref  = new Reflections("no.stelar7.botty");
@@ -70,10 +71,9 @@ public class CommandHandler
         boolean isAdmin = false;
         if (event.getMember().isPresent())
         {
-            List<String> adminIds = SettingsUtil.GLOBAL.getList("adminRoleIds");
+            List<Snowflake> adminIds = SettingsConnection.INSTANCE.getAdminRoles();
             isAdmin = event.getMember().get()
                            .getRoleIds().stream()
-                           .map(Snowflake::asString)
                            .anyMatch(adminIds::contains);
         }
         

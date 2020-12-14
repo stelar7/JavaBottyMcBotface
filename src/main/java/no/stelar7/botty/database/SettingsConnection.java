@@ -5,7 +5,7 @@ import no.stelar7.botty.utils.SQLUtils;
 import java.sql.*;
 import java.util.*;
 
-public class SettingsConnection extends DatabaseConnection
+public class SettingsConnection extends BotConnection
 {
     private static final String             table                        = "settings";
     private static final String             SETTING_OFFICE_HOURS_CHANNEL = "office-hours-channel";

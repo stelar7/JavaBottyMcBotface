@@ -3,7 +3,7 @@ package no.stelar7.botty.utils;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.*;
 
-import java.util.Optional;
+import java.util.*;
 
 public class RoleUtils
 {
@@ -17,5 +17,10 @@ public class RoleUtils
     {
         Optional<Member> member = user.asMember(guild.getId()).blockOptional();
         member.ifPresent(value -> value.removeRole(role).block());
+    }
+    
+    public static boolean hasAnyRoles(Member user, Collection<Snowflake> roles)
+    {
+        return GeneralUtils.intersection(roles, user.getRoleIds()).size() > 1;
     }
 }

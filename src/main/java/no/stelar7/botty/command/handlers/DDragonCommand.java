@@ -72,7 +72,7 @@ public class DDragonCommand extends Command
     private void handleSpell(CommandParameters params)
     {
         // TODO: find spell
-        SummonerData item = null;
+        SummonerData item = summonerData.get(0);
         
         String path = "https://raw.communitydragon.org/latest/plugins" +
                       item.getIconPath()
@@ -87,7 +87,7 @@ public class DDragonCommand extends Command
     private void handleChamp(CommandParameters params)
     {
         // TODO: find champ
-        ChampionSummary item = null;
+        ChampionSummary item = championData.get(0);
         
         String path = "https://cdn.communitydragon.org/latest/champion/" + item.getId() + "/square";
         
@@ -98,7 +98,7 @@ public class DDragonCommand extends Command
     private void handlePerk(CommandParameters params)
     {
         // TODO: find perk
-        PerkData item = null;
+        PerkData item = perkData.get(0);
         
         String path = "https://raw.communitydragon.org/latest/plugins" +
                       item.getIconPath()
@@ -113,7 +113,7 @@ public class DDragonCommand extends Command
     private void handleItem(CommandParameters params)
     {
         // TODO: find item
-        ItemData item = null;
+        ItemData item = itemData.get(0);
         
         String path = "https://raw.communitydragon.org/latest/plugins" +
                       item.getIconPath()

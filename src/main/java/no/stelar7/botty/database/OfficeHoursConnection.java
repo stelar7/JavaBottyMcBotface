@@ -7,7 +7,7 @@ import no.stelar7.botty.utils.SQLUtils;
 import java.sql.*;
 import java.util.*;
 
-public class OfficeHoursConnection extends DatabaseConnection
+public class OfficeHoursConnection extends BotConnection
 {
     private final String table = "office-hours";
     

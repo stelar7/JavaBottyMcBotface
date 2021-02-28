@@ -11,7 +11,7 @@ public class SettingsConnection extends BotConnection
     public static final  String             table                        = "settings";
     public static final  SettingsConnection INSTANCE                     = new SettingsConnection();
     private static final String             SETTING_OFFICE_HOURS_CHANNEL = "office-hours-channel";
-    
+    private static final String             SETTING_ESPORTS_CHANNEL      = "esports-channel";
     
     private SettingsConnection()
     {
@@ -30,15 +30,22 @@ public class SettingsConnection extends BotConnection
         return getSetting(SETTING_OFFICE_HOURS_CHANNEL);
     }
     
+    public String getESportsChannel()
+    {
+        return getSetting(SETTING_ESPORTS_CHANNEL);
+    }
+    
     public String getSetting(String key)
     {
         try
         {
             ResultSet rs = this.select(table, "*", "WHERE " + SQLUtils.wrapInSQLQuotes("setting") + " = " + SQLUtils.wrapInDoubleQuotes(key));
-            if (!rs.first()) {
+            if (!rs.first())
+            {
                 System.out.println("Settings table missing value for key " + key);
                 System.exit(0);
-            };
+            }
+            ;
             return rs.getString("value");
         } catch (SQLException ex)
         {

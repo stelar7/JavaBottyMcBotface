@@ -1,5 +1,9 @@
 package no.stelar7.botty.utils;
 
+import com.google.gson.reflect.TypeToken;
+
+import java.util.List;
+
 public class StringUtils
 {
     public static int levenshteinDistance(String a, String b)
@@ -48,5 +52,20 @@ public class StringUtils
         }
         
         return v1[b.length()];
+    }
+    
+    public static <T> T toType(String json, Class<T> clazz)
+    {
+        return SettingsUtil.gson.fromJson(json, clazz);
+    }
+    
+    public static <T> List<T> toTypeList(String json, Class<T> clazz)
+    {
+        return SettingsUtil.gson.fromJson(json, TypeToken.getParameterized(List.class, clazz).getType());
+    }
+    
+    public static String toUrl(String text, String link)
+    {
+        return "[" + text + "](" + link + ")";
     }
 }

@@ -171,11 +171,11 @@ public class DDragonCommand extends Command
     
     static class ChampionSummary
     {
-        private int          id;
-        private String       name;
-        private String       alias;
-        private String       squarePortraitPath;
-        private List<String> skins;
+        private       int          id;
+        private       String       name;
+        private       String       alias;
+        private       String       squarePortraitPath;
+        private final List<String> skins = new ArrayList<>();
         
         public int getId()
         {

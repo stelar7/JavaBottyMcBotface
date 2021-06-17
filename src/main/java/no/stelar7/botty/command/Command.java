@@ -10,6 +10,11 @@ public abstract class Command
     public abstract void execute(CommandParameters params);
     
     public abstract List<String> getCommands();
+    /*
+    public abstract void handleInteraction(InteractionCreateEvent event);
+    
+    public abstract List<ApplicationCommandOptionData> getOptions();
+     */
     
     public boolean isDisabled()
     {
@@ -30,4 +35,5 @@ public abstract class Command
     {
         isAdminOnly = adminOnly;
     }
+    
 }
